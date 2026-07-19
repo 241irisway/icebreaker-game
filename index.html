@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>谁是谁 · 破冰游戏</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #241629;
+    --bg-soft: #2f1d36;
+    --card: #35213d;
+    --gold: #FFB627;
+    --teal: #2EC4B6;
+    --coral: #FF6B6B;
+    --text: #F4EDE4;
+    --text-dim: #C9BCC9;
+    --line: rgba(244,237,228,0.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(ellipse at top, var(--bg-soft), var(--bg) 60%);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding: 24px 16px 60px;
+  }
+  .app{ width:100%; max-width:480px; }
+  h1,h2,h3{ font-family:'Baloo 2', sans-serif; margin:0; }
+  .eyebrow{
+    font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+    color: var(--teal); font-weight:700; margin-bottom:6px;
+  }
+  .title{ font-size:28px; font-weight:800; color:var(--gold); line-height:1.25; }
+  .subtitle{ color:var(--text-dim); font-size:14px; margin-top:8px; line-height:1.6; }
+  .card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 22px;
+    margin-top: 20px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+  }
+  .stack{ display:flex; flex-direction:column; gap:12px; }
+  label{ font-size:13px; color: var(--text-dim); font-weight:600; }
+  input, textarea, select{
+    width:100%;
+    background: rgba(244,237,228,0.06);
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    outline:none;
+    transition: border-color 0.15s ease;
+  }
+  input:focus, textarea:focus, select:focus{ border-color: var(--gold); }
+  textarea{ resize:vertical; min-height:70px; }
+  button{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:16px;
+    border:none;
+    border-radius:14px;
+    padding:14px 18px;
+    cursor:pointer;
+    transition: transform 0.08s ease, filter 0.15s ease;
+  }
+  button:active{ transform: scale(0.97); }
+  .btn-primary{ background: var(--gold); color:#241629; }
+  .btn-primary:disabled{ background:#5a5062; color:#a89fa8; cursor:not-allowed; }
+  .btn-secondary{ background: transparent; color: var(--teal); border:1.5px solid var(--teal); }
+  .btn-ghost{ background:transparent; color:var(--text-dim); border:1.5px solid var(--line); font-size:14px; padding:10px 14px;}
+  .code-badge{
+    font-family:'Baloo 2', sans-serif;
+    font-size:32px; font-weight:800; letter-spacing:0.15em;
+    color: var(--gold); text-align:center;
+    background: rgba(255,182,39,0.08);
+    border: 2px dashed rgba(255,182,39,0.4);
+    border-radius:16px;
+    padding: 14px;
+    margin-top:14px;
+    user-select:all;
+  }
+  .hint{ font-size:12.5px; color: var(--text-dim); margin-top:10px; line-height:1.6; }
+  .player-chip{
+    display:inline-flex; align-items:center; gap:6px;
+    background: rgba(46,196,182,0.12);
+    border:1px solid rgba(46,196,182,0.35);
+    color: var(--teal);
+    font-size:13px; font-weight:600;
+    padding:6px 12px; border-radius:999px;
+    margin:4px 4px 0 0;
+  }
+  .answer-card{
+    background: rgba(244,237,228,0.05);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px;
+    margin-top:12px;
+  }
+  .answer-letter{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:28px; height:28px; border-radius:8px;
+    background: var(--coral); color:#241629;
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:14px;
+    margin-right:10px;
+  }
+  .answer-text{ font-size:15px; line-height:1.5; margin:10px 0; }
+  .result-row{ display:flex; align-items:center; gap:10px; margin-top:8px; font-size:14px;}
+  .dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .dot.correct{ background: var(--teal); }
+  .dot.wrong{ background: var(--coral); }
+  .score-banner{
+    text-align:center; padding: 18px; border-radius:16px;
+    background: linear-gradient(135deg, rgba(255,182,39,0.15), rgba(46,196,182,0.1));
+    border:1px solid rgba(255,182,39,0.3);
+    margin-top:16px;
+  }
+  .score-num{ font-family:'Baloo 2',sans-serif; font-size:42px; font-weight:800; color:var(--gold); }
+  .error{ color: var(--coral); font-size:13px; margin-top:6px; }
+  .status-line{ display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-dim); margin-top:14px;}
+  .pulse{ width:8px; height:8px; border-radius:50%; background:var(--teal); animation: pulse 1.4s infinite ease-in-out; }
+  @keyframes pulse{ 0%,100%{opacity:0.3;} 50%{opacity:1;} }
+  .back-link{ color:var(--text-dim); font-size:13px; cursor:pointer; text-decoration:underline; }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+// ⚠️ 这里的接口都指向同一个站点下的 /room
+// 部署到 EdgeOne Pages 后，/functions/room.js 会自动映射成 /room 接口
+const API_URL = "/room";
+
+let state = {
+  screen: "home",
+  code: null,
+  name: "",
+  question: "",
+  room: null,
+  isHost: false,
+  myGuesses: {},
+  submittedGuess: false,
+  errorMsg: ""
+};
+let pollTimer = null;
+
+const DEFAULT_QUESTION = "说一件大多数人不知道关于你的趣事";
+
+function genCode(){
+  const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  let c = "";
+  for(let i=0;i<4;i++) c += letters[Math.floor(Math.random()*letters.length)];
+  return c;
+}
+function uid(){ return Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
+
+async function apiGet(code){
+  try{
+    const res = await fetch(`${API_URL}?code=${encodeURIComponent(code)}`);
+    if(!res.ok) return null;
+    return await res.json();
+  }catch(e){ return null; }
+}
+async function apiPost(code, action, payload){
+  try{
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, action, payload })
+    });
+    const data = await res.json();
+    if(!res.ok) return { error: data.error || "请求失败" };
+    return data;
+  }catch(e){ return { error: "网络错误，请重试" }; }
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function startPolling(){
+  stopPolling();
+  pollTimer = setInterval(async ()=>{
+    if(!state.code) return;
+    const r = await apiGet(state.code);
+    if(r && !r.error){
+      const prevPhase = state.room ? state.room.phase : null;
+      state.room = r;
+      if(prevPhase === "collecting" && r.phase === "guessing" && state.screen === "lobby"){
+        state.screen = "guessing";
+      }
+      render();
+    }
+  }, 3000);
+}
+function stopPolling(){ if(pollTimer){ clearInterval(pollTimer); pollTimer = null; } }
+
+// ---------- Actions ----------
+
+async function createRoom(){
+  const q = document.getElementById('q-input').value.trim() || DEFAULT_QUESTION;
+  const hostName = document.getElementById('host-name-input').value.trim();
+  if(!hostName){ state.errorMsg = "请输入你的名字"; render(); return; }
+  const code = genCode();
+  const room = await apiPost(code, "create", { question: q });
+  if(room.error){ state.errorMsg = room.error; render(); return; }
+  state.code = code;
+  state.name = hostName;
+  state.question = q;
+  state.isHost = true;
+  state.room = room;
+  state.screen = "answer";
+  state.errorMsg = "";
+  render();
+}
+
+async function joinRoom(){
+  const code = document.getElementById('join-code-input').value.trim().toUpperCase();
+  const name = document.getElementById('join-name-input').value.trim();
+  if(!code || !name){ state.errorMsg = "请填写房间码和你的名字"; render(); return; }
+  const room = await apiGet(code);
+  if(!room || room.error){ state.errorMsg = "找不到这个房间，检查一下房间码"; render(); return; }
+  if(room.players.some(p=>p.name === name)){
+    state.errorMsg = "这个名字已经被用过了，换一个吧";
+    render(); return;
+  }
+  state.code = code;
+  state.name = name;
+  state.question = room.question;
+  state.isHost = false;
+  state.room = room;
+  state.errorMsg = "";
+  state.screen = room.phase === "collecting" ? "answer" : "guessing";
+  render();
+}
+
+async function submitAnswer(){
+  const answer = document.getElementById('answer-input').value.trim();
+  if(!answer){ state.errorMsg = "写点什么再提交吧"; render(); return; }
+  const room = await apiPost(state.code, "submitAnswer", { id: uid(), name: state.name, answer });
+  if(room.error){ state.errorMsg = room.error; render(); return; }
+  state.room = room;
+  state.errorMsg = "";
+  state.screen = "lobby";
+  render();
+  startPolling();
+}
+
+async function beginGuessing(){
+  const fresh = await apiGet(state.code);
+  if(!fresh || fresh.error || fresh.players.length < 2){
+    state.errorMsg = "至少需要 2 个人提交答案才能开始";
+    render(); return;
+  }
+  const shuffledIds = shuffle(fresh.players.map(p=>p.id));
+  const room = await apiPost(state.code, "startGuessing", { shuffledIds });
+  if(room.error){ state.errorMsg = room.error; render(); return; }
+  state.room = room;
+  state.screen = "guessing";
+  render();
+}
+
+function setGuess(letter, playerId){
+  state.myGuesses[letter] = playerId;
+}
+
+function submitGuesses(){
+  state.submittedGuess = true;
+  state.screen = "reveal";
+  render();
+}
+
+function resetToHome(){
+  stopPolling();
+  state = { screen:"home", code:null, name:"", question:"", room:null, isHost:false, myGuesses:{}, submittedGuess:false, errorMsg:"" };
+  render();
+}
+
+// ---------- Views (unchanged from original) ----------
+
+function view_home(){
+  return `
+    <div class="eyebrow">线上破冰小游戏</div>
+    <div class="title">谁是谁？</div>
+    <div class="subtitle">发一个链接给大家，每人写下一个匿名答案，再让全场猜猜谁是谁。适合 2～30 人的线上/线下破冰。</div>
+    <div class="card stack">
+      <button class="btn-primary" onclick="goTo('create')">🎉 发起一局</button>
+      <button class="btn-secondary" onclick="goTo('join')">🔑 我有房间码，加入</button>
+    </div>
+    <div class="hint">提示：把这个页面的链接发到群里，大家打开后各自输入房间码即可一起玩。</div>
+  `;
+}
+
+function view_create(){
+  return `
+    <div class="eyebrow">发起一局</div>
+    <div class="title">设置你的问题</div>
+    <div class="card stack">
+      <div>
+        <label>破冰问题（可自定义）</label>
+        <textarea id="q-input" placeholder="例如：说一件大多数人不知道关于你的趣事">${DEFAULT_QUESTION}</textarea>
+      </div>
+      <div>
+        <label>你的名字（你也会参与作答）</label>
+        <input id="host-name-input" placeholder="例如：小明" />
+      </div>
+      ${state.errorMsg ? `<div class="error">${state.errorMsg}</div>` : ""}
+      <button class="btn-primary" onclick="createRoom()">生成房间</button>
+      <span class="back-link" onclick="goTo('home')">← 返回</span>
+    </div>
+  `;
+}
+
+function view_join(){
+  return `
+    <div class="eyebrow">加入房间</div>
+    <div class="title">输入房间码</div>
+    <div class="card stack">
+      <div>
+        <label>房间码</label>
+        <input id="join-code-input" placeholder="例如：ABCD" style="text-transform:uppercase;letter-spacing:0.1em;" />
+      </div>
+      <div>
+        <label>你的名字</label>
+        <input id="join-name-input" placeholder="例如：小红" />
+      </div>
+      ${state.errorMsg ? `<div class="error">${state.errorMsg}</div>` : ""}
+      <button class="btn-primary" onclick="joinRoom()">加入</button>
+      <span class="back-link" onclick="goTo('home')">← 返回</span>
+    </div>
+  `;
+}
+
+function view_answer(){
+  return `
+    <div class="eyebrow">房间 ${state.code}</div>
+    <div class="title">写下你的答案</div>
+    <div class="subtitle">${escapeHtml(state.question)}</div>
+    <div class="card stack">
+      <textarea id="answer-input" placeholder="匿名提交，等下大家来猜是谁写的～"></textarea>
+      ${state.errorMsg ? `<div class="error">${state.errorMsg}</div>` : ""}
+      <button class="btn-primary" onclick="submitAnswer()">提交答案</button>
+    </div>
+    ${state.isHost ? `<div class="code-badge">${state.code}</div><div class="hint">把这个房间码和本页链接发到群里，让大家加入吧！</div>` : ""}
+  `;
+}
+
+function view_lobby(){
+  const room = state.room || {players:[]};
+  const players = room.players || [];
+  return `
+    <div class="eyebrow">房间 ${state.code}</div>
+    <div class="title">等待大家提交答案</div>
+    <div class="subtitle">已有 ${players.length} 人提交</div>
+    <div class="card">
+      <div>${players.map(p=>`<span class="player-chip">✓ ${escapeHtml(p.name)}</span>`).join("") || '<span class="hint">还没有人提交</span>'}</div>
+      ${state.isHost ? `
+        ${state.errorMsg ? `<div class="error">${state.errorMsg}</div>` : ""}
+        <div style="margin-top:16px;">
+          <button class="btn-primary" onclick="beginGuessing()" ${players.length<2 ? "disabled":""}>🚀 开始猜谁是谁（至少2人）</button>
+        </div>
+      ` : `<div class="status-line"><span class="pulse"></span>等待发起人开始猜谜环节…</div>`}
+    </div>
+    <div class="code-badge">${state.code}</div>
+  `;
+}
+
+function view_guessing(){
+  const room = state.room;
+  if(!room || !room.shuffledIds){
+    return `<div class="title">正在准备…</div><div class="card"><div class="status-line"><span class="pulse"></span>正在加载答案</div></div>`;
+  }
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const idToPlayer = {}; room.players.forEach(p=> idToPlayer[p.id]=p);
+  const answerBlocks = room.shuffledIds.map((pid, idx)=>{
+    const letter = letters[idx];
+    const answer = idToPlayer[pid] ? idToPlayer[pid].answer : "";
+    const options = room.players.map(p=>`<option value="${p.id}" ${state.myGuesses[letter]===p.id?"selected":""}>${escapeHtml(p.name)}</option>`).join("");
+    return `
+      <div class="answer-card">
+        <div><span class="answer-letter">${letter}</span><strong>是谁写的？</strong></div>
+        <div class="answer-text">${escapeHtml(answer)}</div>
+        <select onchange="setGuess('${letter}', this.value)">
+          <option value="">-- 选择一个人 --</option>
+          ${options}
+        </select>
+      </div>
+    `;
+  }).join("");
+  const allAnswered = room.shuffledIds.every((pid,idx)=> state.myGuesses[letters[idx]]);
+  return `
+    <div class="eyebrow">房间 ${state.code} · 猜谜环节</div>
+    <div class="title">谁写了这句话？</div>
+    <div class="subtitle">${escapeHtml(room.question)}</div>
+    <div class="card">
+      ${answerBlocks}
+      <button class="btn-primary" style="margin-top:16px;width:100%;" onclick="submitGuesses()" ${allAnswered?"":"disabled"}>✅ 提交我的猜测</button>
+      ${!allAnswered ? '<div class="hint">给每一条答案都选一个人吧</div>' : ""}
+    </div>
+  `;
+}
+
+function view_reveal(){
+  const room = state.room;
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const idToPlayer = {}; room.players.forEach(p=> idToPlayer[p.id]=p);
+  let correct = 0;
+  const rows = room.shuffledIds.map((pid, idx)=>{
+    const letter = letters[idx];
+    const actual = idToPlayer[pid];
+    const guessedId = state.myGuesses[letter];
+    const guessed = idToPlayer[guessedId];
+    const isCorrect = guessedId === pid;
+    if(isCorrect) correct++;
+    return `
+      <div class="answer-card">
+        <div><span class="answer-letter">${letter}</span><span class="answer-text" style="display:inline;">${escapeHtml(actual.answer)}</span></div>
+        <div class="result-row">
+          <span class="dot ${isCorrect?"correct":"wrong"}"></span>
+          <span>真正的作者是 <strong>${escapeHtml(actual.name)}</strong>${!isCorrect ? ` · 你猜的是 ${guessed?escapeHtml(guessed.name):"（未选）"}` : ""}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+  return `
+    <div class="eyebrow">房间 ${state.code} · 揭晓</div>
+    <div class="title">答案揭晓！</div>
+    <div class="score-banner">
+      <div class="score-num">${correct} / ${room.shuffledIds.length}</div>
+      <div class="subtitle" style="margin-top:4px;">你猜对的数量</div>
+    </div>
+    <div class="card">${rows}</div>
+    <div style="margin-top:16px; display:flex; gap:10px;">
+      <button class="btn-ghost" style="flex:1;" onclick="resetToHome()">🏠 再来一局</button>
+    </div>
+  `;
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.innerText = str;
+  return d.innerHTML;
+}
+
+function goTo(screen){
+  state.errorMsg = "";
+  state.screen = screen;
+  render();
+}
+
+function render(){
+  const app = document.getElementById('app');
+  let html = "";
+  switch(state.screen){
+    case "home": html = view_home(); break;
+    case "create": html = view_create(); break;
+    case "join": html = view_join(); break;
+    case "answer": html = view_answer(); break;
+    case "lobby": html = view_lobby(); break;
+    case "guessing": html = view_guessing(); break;
+    case "reveal": html = view_reveal(); break;
+    default: html = view_home();
+  }
+  app.innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>

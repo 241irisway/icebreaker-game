@@ -1,0 +1,12 @@
+{
+  "name": "ktg-guess-who-edgeone",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@libsql/client": "0.18.0"
+  }
+}
